@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laporan Stok Bahan — Jus Dedee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@500;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg2: #f7f7f5;
+      --bg3: #efefed;
+      --border: #e0e0dd;
+      --border2: #c8c8c4;
+      --text: #1a1a18;
+      --text2: #5a5955;
+      --text3: #9a9890;
+      --accent: #4a7c1f;
+      --accent-dim: #3a6015;
+      --accent-bg: rgba(74,124,31,0.07);
+      --danger: #cc3333;
+      --danger-bg: rgba(204,51,51,0.08);
+      --success: #1a7a4a;
+      --success-bg: rgba(26,122,74,0.08);
+      --warn: #b86a00;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+
+    /* HEADER */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .top-bar-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--accent);
+      letter-spacing: -0.01em;
+    }
+    .top-bar-sub {
+      font-size: 11px;
+      color: var(--text3);
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    /* META */
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .meta-grid .full { grid-column: 1 / -1; }
+
+    .field label {
+      display: block;
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text3);
+      margin-bottom: 6px;
+    }
+    .field input,
+    .field select {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .field input:focus,
+    .field select:focus { border-color: var(--accent-dim); }
+    .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a5955' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+    .field input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0); opacity: 0.4; cursor: pointer; }
+
+    /* SECTION */
+    .section {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg3);
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text2);
+    }
+    .section-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text3);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2px 8px;
+    }
+
+    /* COL HEADERS */
+    .col-head-row {
+      display: grid;
+      grid-template-columns: 1fr 90px 90px;
+      border-bottom: 1px solid var(--border);
+    }
+    .col-head {
+      padding: 7px 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text3);
+      text-align: center;
+    }
+    .col-head:first-child { text-align: left; padding-left: 16px; }
+    .col-head:not(:first-child) { border-left: 1px solid var(--border); }
+
+    /* ITEM ROWS */
+    .item-row {
+      display: grid;
+      grid-template-columns: 1fr 90px 90px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-row.hidden { display: none; }
+    .item-row:hover { background: var(--bg3); }
+
+    .item-name {
+      padding: 11px 16px;
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+    }
+
+    .qty-input {
+      border: none;
+      border-left: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      text-align: center;
+      padding: 11px 8px;
+      outline: none;
+      width: 100%;
+      -moz-appearance: textfield;
+      transition: background 0.15s, color 0.15s;
+    }
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .qty-input:focus { background: rgba(74,124,31,0.06); }
+    .qty-input.is-zero { background: var(--danger-bg); color: var(--danger); }
+    .qty-input.has-val { background: var(--success-bg); color: var(--success); }
+
+    /* BUTTONS */
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn {
+      flex: 1;
+      padding: 13px;
+      border-radius: var(--radius-sm);
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--text2);
+    }
+    .btn-outline:hover { border-color: var(--text3); color: var(--text); }
+    .btn-accent {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .btn-accent:hover { opacity: 0.88; }
+    .btn-accent:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* STATUS */
+    .status-bar {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 12px 16px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+    }
+    .status-bar.show { display: flex; }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--border2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .status-ok { color: var(--success); font-size: 16px; }
+    .status-err { color: var(--danger); font-size: 16px; }
+
+    /* RESULT */
+    .result-box {
+      display: none;
+      margin-top: 14px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .result-box.show { display: block; }
+    .result-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+    }
+    .result-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text2);
+    }
+    .btn-copy {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--text2);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-copy:hover { border-color: var(--accent-dim); color: var(--accent); }
+    .result-text {
+      padding: 16px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      line-height: 1.9;
+      white-space: pre-wrap;
+      color: var(--text);
+      max-height: 420px;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 400px) {
+      .col-head-row,
+      .item-row { grid-template-columns: 1fr 80px 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span class="top-bar-logo">Jus Dedee</span>
+  <span class="top-bar-sub">Laporan Stok Bahan</span>
+</div>
+
+<div class="container">
+
+  <!-- META -->
+  <div class="meta-grid">
+    <div class="field">
+      <label>Tanggal</label>
+      <input type="date" id="tgl" />
+    </div>
+    <div class="field">
+      <label>Shift</label>
+      <select id="shift">
+        <option>Pagi</option>
+        <option>Siang</option>
+        <option>Malam</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Cabang</label>
+      <select id="cabang" onchange="applyFilter()">
+        <option value="Teuku Umar">Teuku Umar</option>
+        <option value="Renon">Renon</option>
+        <option value="Buluh Indah">Buluh Indah</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Nama Staff</label>
+      <input type="text" id="staff" placeholder="Nama kamu..." />
+    </div>
+  </div>
+
+  <!-- SECTION: HOLLAND -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">Holland</span>
+      <span class="section-badge" id="cnt-holland">0/23</span>
+    </div>
+    <div class="col-head-row">
+      <div class="col-head">Item</div>
+      <div class="col-head">Bawa</div>
+      <div class="col-head">Sisa</div>
+    </div>
+    <div id="rows-holland"></div>
+  </div>
+
+  <!-- SECTION: PUKIS -->
+  <div class="section" id="sec-pukis">
+    <div class="section-head">
+      <span class="section-title">Pukis</span>
+      <span class="section-badge" id="cnt-pukis">0/4</span>
+    </div>
+    <div class="col-head-row">
+      <div class="col-head">Item</div>
+      <div class="col-head">Bawa</div>
+      <div class="col-head">Sisa</div>
+    </div>
+    <div id="rows-pukis"></div>
+  </div>
+
+  <!-- SECTION: DUS -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">Dus</span>
+      <span class="section-badge" id="cnt-dus">0/9</span>
+    </div>
+    <div class="col-head-row">
+      <div class="col-head">Item</div>
+      <div class="col-head">Bawa</div>
+      <div class="col-head">Sisa</div>
+    </div>
+    <div id="rows-dus"></div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="action-row">
+    <button class="btn btn-outline" onclick="resetForm()">↺ Reset</button>
+    <button class="btn btn-accent" id="btn-submit" onclick="submitForm()">Kirim Laporan ↗</button>
+  </div>
+
+  <div class="status-bar" id="status-bar">
+    <span class="spinner" id="status-spinner"></span>
+    <span id="status-text">Mengirim data...</span>
+  </div>
+
+  <div class="result-box" id="result-box">
+    <div class="result-head">
+      <span class="result-label">📋 Preview WhatsApp</span>
+      <button class="btn-copy" onclick="copyReport()">Salin teks</button>
+    </div>
+    <div class="result-text" id="result-text"></div>
+  </div>
+
+</div>
+
+<script>
+  // ── DATA ──────────────────────────────────────────────
+  const SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+  const hollandItems = [
+    { name: 'Pre',        hideBI: false },
+    { name: 'Gula',       hideBI: false },
+    { name: 'Telur',      hideBI: false },
+    { name: 'Keju bsr',   hideBI: false },
+    { name: 'Keju kcl',   hideBI: false },
+    { name: 'Keju grg',   hideBI: false },
+    { name: 'Coklat',     hideBI: false },
+    { name: 'Susu',       hideBI: false },
+    { name: 'Butter bsr', hideBI: false },
+    { name: 'Butter kcl', hideBI: false },
+    { name: 'Butter oles',hideBI: false },
+    { name: 'Mentega',    hideBI: false },
+    { name: 'Kacang',     hideBI: false },
+    { name: 'Tuna',       hideBI: false },
+    { name: 'Kornet S',   hideBI: false },
+    { name: 'Kornet A',   hideBI: false },
+    { name: 'Jamur',      hideBI: false },
+    { name: 'Sosis',      hideBI: false },
+    { name: 'Ayam',       hideBI: false },
+    { name: 'Sapi',       hideBI: false },
+    { name: 'Nut bsr',    hideBI: true  },
+    { name: 'Nut kcl',    hideBI: true  },
+    { name: 'Nut grg',    hideBI: true  },
+  ];
+
+  const pukisItems = [
+    { name: 'Keju bsr', hideBI: true },
+    { name: 'Keju kcl', hideBI: true },
+    { name: 'Coklat',   hideBI: true },
+    { name: 'Susu',     hideBI: true },
+  ];
+
+  const dusItems = [
+    { name: 'Dkg', hideBI: false },
+    { name: 'Lkb', hideBI: false },
+    { name: 'Lks', hideBI: false },
+    { name: 'Dkm', hideBI: false },
+    { name: 'Dbs', hideBI: false },
+    { name: 'Dbm', hideBI: false },
+    { name: 'Dbb', hideBI: false },
+    { name: 'Dk',  hideBI: true  },
+    { name: 'Db',  hideBI: true  },
+  ];
+
+  // ── BUILD ROWS ────────────────────────────────────────
+  function buildSection(items, containerId, prefix) {
+    const container = document.getElementById(containerId);
+    items.forEach((item, i) => {
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      row.dataset.idx = i;
+      row.dataset.hidebi = item.hideBI ? '1' : '0';
+      row.innerHTML = `
+        <div class="item-name">${item.name}</div>
+        <input type="number" class="qty-input" id="${prefix}-bawa-${i}" min="0" placeholder="—" oninput="onQty(this,'${prefix}',${items.length})">
+        <input type="number" class="qty-input" id="${prefix}-sisa-${i}" min="0" placeholder="—" oninput="onQty(this,'${prefix}',${items.length})">
+      `;
+      container.appendChild(row);
+    });
+  }
+
+  // ── FILTER ────────────────────────────────────────────
+  function applyFilter() {
+    const isBuluh = document.getElementById('cabang').value === 'Buluh Indah';
+
+    // hide pukis section entirely for Buluh Indah
+    document.getElementById('sec-pukis').style.display = isBuluh ? 'none' : '';
+
+    // hide individual rows
+    ['rows-holland','rows-pukis','rows-dus'].forEach(secId => {
+      document.querySelectorAll(`#${secId} .item-row`).forEach(row => {
+        const hide = isBuluh && row.dataset.hidebi === '1';
+        row.classList.toggle('hidden', hide);
+        if (hide) {
+          row.querySelectorAll('.qty-input').forEach(inp => {
+            inp.value = '';
+            inp.classList.remove('is-zero','has-val');
+          });
+        }
+      });
+    });
+
+    updateCount('holland', hollandItems.length, 'cnt-holland');
+    updateCount('pukis',   pukisItems.length,   'cnt-pukis');
+    updateCount('dus',     dusItems.length,      'cnt-dus');
+    document.getElementById('result-box').classList.remove('show');
+  }
+
+  // ── COUNTERS ──────────────────────────────────────────
+  function updateCount(prefix, total, badgeId) {
+    const isBuluh = document.getElementById('cabang').value === 'Buluh Indah';
+    let visible = 0, filled = 0;
+    for (let i = 0; i < total; i++) {
+      const row = document.querySelector(`#rows-${prefix} .item-row[data-idx="${i}"]`);
+      if (!row || row.classList.contains('hidden')) continue;
+      visible++;
+      const b = document.getElementById(`${prefix}-bawa-${i}`);
+      const s = document.getElementById(`${prefix}-sisa-${i}`);
+      if ((b && b.value !== '') || (s && s.value !== '')) filled++;
+    }
+    document.getElementById(badgeId).textContent = `${filled}/${visible}`;
+  }
+
+  // ── INPUT HANDLER ─────────────────────────────────────
+  function onQty(el, prefix, total) {
+    el.classList.remove('is-zero','has-val');
+    if (el.value !== '') {
+      el.classList.add(parseFloat(el.value) === 0 ? 'is-zero' : 'has-val');
+    }
+    const badge = `cnt-${prefix}`;
+    updateCount(prefix, total, badge);
+  }
+
+  // ── FORMAT DATE ───────────────────────────────────────
+  function formatDate(val) {
+    if (!val) return '—';
+    const [y, m, d] = val.split('-');
+    const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    return `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
+  }
+
+  // ── BUILD REPORT TEXT ─────────────────────────────────
+  function buildReportText(tgl, cabang, shift, staff) {
+    const isBuluh = cabang === 'Buluh Indah';
+    const lines = [];
+    lines.push(`📋 *LAPORAN STOK BAHAN*`);
+    lines.push(`📅 ${formatDate(tgl)} · Shift ${shift}`);
+    lines.push(`🏪 Cabang ${cabang}`);
+    lines.push(`👤 ${staff || '—'}`);
+
+    const printSection = (label, items, prefix) => {
+      lines.push('');
+      lines.push(`━━━━━━━━━━━━━━━━━`);
+      lines.push(`*${label.toUpperCase()}*`);
+      lines.push(`━━━━━━━━━━━━━━━━━`);
+      items.forEach((item, i) => {
+        if (isBuluh && item.hideBI) return;
+        const b = document.getElementById(`${prefix}-bawa-${i}`)?.value ?? '';
+        const s = document.getElementById(`${prefix}-sisa-${i}`)?.value ?? '';
+        const flag = ((b !== '' && parseFloat(b) === 0) || (s !== '' && parseFloat(s) === 0)) ? ' ⚠️' : '';
+        lines.push(`${item.name}: Bawa ${b !== '' ? b : '-'} | Sisa ${s !== '' ? s : '-'}${flag}`);
+      });
+    };
+
+    printSection('Holland', hollandItems, 'holland');
+    if (!isBuluh) printSection('Pukis', pukisItems, 'pukis');
+    printSection('Dus', dusItems, 'dus');
+
+    lines.push('');
+    lines.push('✅ Laporan selesai diinput');
+    return lines.join('\n');
+  }
+
+  // ── COLLECT PAYLOAD ───────────────────────────────────
+  function collectPayload() {
+    const tgl    = document.getElementById('tgl').value;
+    const cabang = document.getElementById('cabang').value;
+    const shift  = document.getElementById('shift').value;
+    const staff  = document.getElementById('staff').value.trim();
+    const isBuluh = cabang === 'Buluh Indah';
+
+    const rows = {};
+
+    const collect = (items, prefix) => {
+      items.forEach((item, i) => {
+        if (isBuluh && item.hideBI) return;
+        const b = document.getElementById(`${prefix}-bawa-${i}`)?.value ?? '';
+        const s = document.getElementById(`${prefix}-sisa-${i}`)?.value ?? '';
+        rows[`${prefix}__${item.name}__bawa`] = b;
+        rows[`${prefix}__${item.name}__sisa`] = s;
+      });
+    };
+
+    collect(hollandItems, 'holland');
+    if (!isBuluh) collect(pukisItems, 'pukis');
+    collect(dusItems, 'dus');
+
+    return { tgl, cabang, shift, staff, rows };
+  }
+
+  // ── SUBMIT ────────────────────────────────────────────
+  async function submitForm() {
+    const tgl    = document.getElementById('tgl').value;
+    const cabang = document.getElementById('cabang').value;
+    const shift  = document.getElementById('shift').value;
+    const staff  = document.getElementById('staff').value.trim();
+
+    const statusBar  = document.getElementById('status-bar');
+    const statusText = document.getElementById('status-text');
+    const statusSpinner = document.getElementById('status-spinner');
+    const btnSubmit  = document.getElementById('btn-submit');
+    const resultBox  = document.getElementById('result-box');
+
+    // Show loading
+    statusBar.classList.add('show');
+    statusSpinner.style.display = '';
+    statusText.textContent = 'Mengirim data...';
+    statusText.style.color = '';
+    btnSubmit.disabled = true;
+    resultBox.classList.remove('show');
+
+    const payload = collectPayload();
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+
+      if (json.status === 'ok') {
+        statusSpinner.style.display = 'none';
+        statusText.innerHTML = '<span style="color:var(--success)">✓</span> Data berhasil disimpan ke Google Sheets!';
+      } else {
+        throw new Error(json.message || 'Error dari server');
+      }
+    } catch (err) {
+      statusSpinner.style.display = 'none';
+      statusText.innerHTML = `<span style="color:var(--danger)">✗</span> Gagal kirim: ${err.message}`;
+    } finally {
+      btnSubmit.disabled = false;
+      const reportText = buildReportText(tgl, cabang, shift, staff);
+      document.getElementById('result-text').textContent = reportText;
+      resultBox.classList.add('show');
+    }
+  }
+
+  // ── COPY ──────────────────────────────────────────────
+  function copyReport() {
+    const text = document.getElementById('result-text').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.btn-copy');
+      const orig = btn.textContent;
+      btn.textContent = '✓ Tersalin!';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    });
+  }
+
+  // ── RESET ─────────────────────────────────────────────
+  function resetForm() {
+    document.querySelectorAll('.qty-input').forEach(el => {
+      el.value = '';
+      el.classList.remove('is-zero','has-val');
+    });
+    document.getElementById('staff').value = '';
+    document.getElementById('status-bar').classList.remove('show');
+    document.getElementById('result-box').classList.remove('show');
+    setToday();
+    applyFilter();
+  }
+
+  // ── INIT ──────────────────────────────────────────────
+  function setToday() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    document.getElementById('tgl').value = `${y}-${m}-${dd}`;
+  }
+
+  buildSection(hollandItems, 'rows-holland', 'holland');
+  buildSection(pukisItems,   'rows-pukis',   'pukis');
+  buildSection(dusItems,     'rows-dus',     'dus');
+  setToday();
+  applyFilter();
+</script>
+</body>
+</html>
