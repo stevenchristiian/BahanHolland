@@ -397,6 +397,21 @@
     <div id="rows-dus"></div>
   </div>
 
+  <!-- CATATAN -->
+  <div class="section" style="margin-bottom:12px;">
+    <div class="section-head">
+      <span class="section-title">Catatan</span>
+      <span class="section-badge" id="catatan-badge">opsional</span>
+    </div>
+    <div style="padding:12px 16px;">
+      <textarea id="catatan" placeholder="Tulis kalau ada hal tak terduga, kerusakan, kekurangan bahan mendadak, dll..."
+        oninput="document.getElementById('catatan-badge').textContent = this.value.trim() ? 'ada catatan ✎' : 'opsional'"
+        style="width:100%;min-height:80px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;resize:vertical;outline:none;line-height:1.6;transition:border-color 0.15s;"
+        onfocus="this.style.borderColor='var(--accent-dim)'"
+        onblur="this.style.borderColor='var(--border)'"></textarea>
+    </div>
+  </div>
+
   <!-- ACTIONS -->
   <div class="action-row">
     <button class="btn btn-outline" onclick="resetForm()">↺ Reset</button>
@@ -552,6 +567,8 @@
     lines.push(`📅 ${formatDate(tgl)} · Shift ${shift}`);
     lines.push(`🏪 Cabang ${cabang}`);
     lines.push(`👤 ${staff || '—'}`);
+    const catatan = document.getElementById('catatan').value.trim();
+    if (catatan) { lines.push(''); lines.push(`📝 Catatan: ${catatan}`); }
 
     const printSection = (label, items, prefix) => {
       lines.push('');
@@ -600,7 +617,8 @@
     if (!isBuluh) collect(pukisItems, 'pukis');
     collect(dusItems, 'dus');
 
-    return { tgl, cabang, shift, staff, rows };
+    const catatan = document.getElementById('catatan').value.trim();
+    return { tgl, cabang, shift, staff, rows, catatan };
   }
 
   // ── SUBMIT ────────────────────────────────────────────
@@ -668,6 +686,8 @@
       el.classList.remove('is-zero','has-val');
     });
     document.getElementById('staff').value = '';
+    document.getElementById('catatan').value = '';
+    document.getElementById('catatan-badge').textContent = 'opsional';
     document.getElementById('status-bar').classList.remove('show');
     document.getElementById('result-box').classList.remove('show');
     setToday();
