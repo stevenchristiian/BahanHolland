@@ -336,10 +336,13 @@
     </div>
     <div class="field">
       <label>Shift</label>
+      <div id="shift-field" style="position:relative;">
       <select id="shift">
         <option>Shift 1</option>
         <option>Shift 2</option>
       </select>
+      <div id="shift-bi-note" style="display:none;font-size:11px;color:var(--text3);margin-top:4px;">Buluh Indah hanya Shift 2</div>
+      </div>
     </div>
     <div class="field">
       <label>Cabang</label>
@@ -503,6 +506,19 @@
   // ── FILTER ────────────────────────────────────────────
   function applyFilter() {
     const isBuluh = document.getElementById('cabang').value === 'Buluh Indah';
+
+    // Force Shift 2 for Buluh Indah and hide the shift selector
+    const shiftField = document.getElementById('shift-field');
+    if (isBuluh) {
+      document.getElementById('shift').value = 'Shift 2';
+      shiftField.style.opacity = '0.4';
+      shiftField.style.pointerEvents = 'none';
+      document.getElementById('shift-bi-note').style.display = 'block';
+    } else {
+      shiftField.style.opacity = '';
+      shiftField.style.pointerEvents = '';
+      document.getElementById('shift-bi-note').style.display = 'none';
+    }
 
     // hide pukis section entirely for Buluh Indah
     document.getElementById('sec-pukis').style.display = isBuluh ? 'none' : '';
